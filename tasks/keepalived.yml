@@ -1,0 +1,19 @@
+---
+- name: Ensure keepalived is installed
+  yum: name=keepalived
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure keepalived is installed
+  apt: name=keepalived
+  when: ansible_os_family == "Debian"
+
+- name: Ensure keepalived conf is set
+  template: >
+    src=templates/keepalived.conf.j2
+    dest=/etc/keepalived/keepalived.conf
+
+- name: Ensure keepalived is started
+  service: > 
+    name=keepalived
+    state=started
+    enabled=yes

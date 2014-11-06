@@ -1,0 +1,91 @@
+---
+- name: Ensure dependencies are installed
+  yum: name={{ item }} state=installed
+  with_items:
+    - openssl-devel 
+    - pcre-devel
+    - make
+    - gcc
+    - socat
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure dependencies are installed
+  apt: name={{ item }} state=installed
+  with_items:
+    - build-essential
+    - zlib1g-dev 
+    - libpcre3-dev
+    - libssl-dev
+    - socat
+  when: ansible_os_family == "Debian"
+
+- name: Ensure haproxy src is downloaded
+  get_url: >
+    dest={{ haproxy_src_dir }} 
+    url={{ haproxy_download_url }}
+
+- name: Ensure haproxy is unarchived
+  shell: >
+    tar xvf {{ haproxy_src_dir }}/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}.tar.gz -C {{ haproxy_src_dir }}/
+    creates={{ haproxy_src_dir }}/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}
+
+- name: Ensure haproxy makefile is configured
+  shell: >
+    cd {{ haproxy_src_dir }}/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}  && make {{ haproxy_make_option }}  && make install
+    creates=/usr/local/sbin/haproxy
+
+- name: Ensure haproxy user is enabled
+  user: name={{ haproxy_user }} shell=/sbin/nologin
+
+- name: Ensure haproxy directory is present
+  file: path={{ item }} state=directory
+  with_items:
+    - "/etc/haproxy"
+    - "/var/lib/haproxy"
+
+- name: Ensure haproxy binary file is copied to path enabled directory
+  shell: >
+    cp /usr/local/sbin/{{ item }} /usr/sbin/{{ item }}
+    creates=/usr/sbin/{{ item }}
+  with_items:
+    - haproxy
+    - haproxy-systemd-wrapper
+
+- name: Ensure haproxy init script is copied(RedHat)
+  shell: >
+    cp {{ haproxy_src_dir }}/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}/examples/haproxy.init /etc/init.d/haproxy
+    creates=/etc/init.d/haproxy
+  when: ansible_os_family == "RedHat"
+
+- name: Ensure haproxy init script is copied(Debian)
+  template: >
+    src=templates/haproxy.debian.init 
+    dest=/etc/init.d/haproxy
+  when: ansible_os_family == "Debian"
+
+- name: Ensure haproxy default is set(Debian)
+  template: >
+    src=templates/haproxy.debian.default
+    dest=/etc/default/haproxy
+  when: ansible_os_family == "Debian"
+
+- name: Ensure haproxy init script is executable
+  file: >
+    path=/etc/init.d/haproxy
+    mode=0755
+
+- name: Ensure haproxy conf is set
+  template: src=templates/haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+
+- name: Ensure nonlocal bind kernel parameter is set
+  sysctl: >
+    name=net.ipv4.ip_nonlocal_bind
+    value=1
+    state=present
+    ignoreerrors=yes
+
+- name: Ensure haproxy is started
+  service: >
+    name=haproxy 
+    state=started
+    enabled=yes

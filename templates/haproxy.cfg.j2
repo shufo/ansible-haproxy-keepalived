@@ -1,0 +1,31 @@
+global
+    daemon
+    maxconn 50000
+    stats socket /var/lib/haproxy/haproxy.sock mode 0600 level admin
+defaults
+    timeout connect 5000ms
+    timeout client 50000ms
+    timeout server 50000ms
+
+frontend front_in
+    bind 192.168.40.100:80
+    ##  SSL binding ##
+    # bind 192.168.40.100:443 ssl crt /etc/ssl/certs/server.pem
+    maxconn 30000
+    default_backend ju_backend
+
+backend ju_backend
+    mode http 
+    ##  Force SSL ##
+    # redirect scheme https if !{ ssl_fc }
+    balance roundrobin
+    server s1 192.168.40.10:8080 maxconn 30000 check inter 2000 rise 2 fall 5
+    server s2 192.168.40.11:8080 maxconn 30000 check inter 2000 rise 2 fall 5
+    option forwardfor
+
+listen stats :8181        
+   mode http
+   stats enable
+   stats realm Haproxy\ Statistics
+   stats uri /
+   stats auth haproxy:ju

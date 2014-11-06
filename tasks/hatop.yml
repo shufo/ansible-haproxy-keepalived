@@ -1,0 +1,23 @@
+---
+- name: Ensure hatop src directory is present
+  file: path={{ hatop_src_dir }} state=directory
+
+- name: Ensure hatop binary is downloaded
+  get_url: >
+    url={{ hatop_download_url }}
+    dest={{ hatop_src_dir }}
+
+- name: Ensure hatop tarball is unarchived
+  shell: >
+    tar xvf {{ hatop_src_dir }}/{{ hatop_archive_name }} -C {{ hatop_src_dir }}
+    creates={{ hatop_src_dir }}/{{ hatop_dir_name }}
+
+- name: Ensure hatop binary is installed
+  shell: >
+    cd {{ hatop_src_dir }}/{{ hatop_dir_name }} && install -m 755 bin/hatop {{ hatop_install_dir }}
+    creates={{ hatop_install_dir }}/hatop
+
+- name: Ensure hatop man file is installed
+  shell: >
+    cd {{ hatop_src_dir }}/{{ hatop_dir_name }} && install -m 644 man/hatop.1 /usr/local/share/man/man1
+    creates=/usr/local/share/man/man1/hatop.1
