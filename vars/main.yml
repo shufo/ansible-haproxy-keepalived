@@ -7,7 +7,7 @@ keepalived_vip: 172.16.42.20
 haproxy_bind_address: 172.16.42.20
 haproxy_user: haproxy
 haproxy_major_version: 1.5
-haproxy_minor_version: 8
+haproxy_minor_version: 11
 haproxy_download_url: "http://www.haproxy.org/download/{{ haproxy_major_version }}/src/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}.tar.gz"
 haproxy_src_dir: /tmp
 haproxy_make_option: TARGET=linux2628 CPU=x86_64 USE_OPENSSL=1 USE_ZLIB=1 USE_PCRE=1
