@@ -19,12 +19,12 @@ vrrp_script chk_haproxy {
 }
 
 vrrp_instance VI_1 {
-   interface eth1                # interface to monitor
+   interface {{ keepalived_bind_interface }}                # interface to monitor
    state MASTER
    virtual_router_id 51          # Assign one ID for this route
    priority {{ keepalived_priority }}                  # 101 on master, 100 on backup
    virtual_ipaddress {
-       192.168.40.100            # the virtual IP
+       {{ keepalived_vip }} dev {{ keepalived_bind_interface }} # the virtual IP
    }
    track_script {
        chk_haproxy

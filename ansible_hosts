@@ -1,1 +1,3 @@
-default ansible_ssh_host=127.0.0.1 ansible_ssh_port=22
+[default] 
+haproxy1 ansible_ssh_host=172.16.42.10 ansible_ssh_port=22 ansible_ssh_user=ubuntu keepalived_priority=100
+haproxy2 ansible_ssh_host=172.16.42.11 ansible_ssh_port=22 ansible_ssh_user=ubuntu keepalived_priority=101

@@ -1,11 +1,19 @@
 ---
+# Keepalived config
+keepalived_bind_interface: eth0
+keepalived_vip: 172.16.42.20
+
 # HAProxy setting
+haproxy_bind_address: 172.16.42.20
 haproxy_user: haproxy
 haproxy_major_version: 1.5
 haproxy_minor_version: 8
 haproxy_download_url: "http://www.haproxy.org/download/{{ haproxy_major_version }}/src/haproxy-{{ haproxy_major_version }}.{{ haproxy_minor_version }}.tar.gz"
 haproxy_src_dir: /tmp
 haproxy_make_option: TARGET=linux2628 CPU=x86_64 USE_OPENSSL=1 USE_ZLIB=1 USE_PCRE=1
+haproxy_balancing_servers:
+  - { name: 's1', ip: "172.16.42.12" }
+  - { name: 's2', ip: "172.16.42.13" }
 
 # hatop
 hatop_version: 0.7.7
