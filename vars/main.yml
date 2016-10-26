@@ -21,4 +21,4 @@ hatop_src_dir: /tmp
 hatop_install_dir: /usr/local/bin
 hatop_archive_name: "hatop-{{ hatop_version }}.tar.gz"
 hatop_dir_name: "hatop-{{ hatop_version }}"
-hatop_download_url: "http://hatop.googlecode.com/files/{{ hatop_dir_name }}.tar.gz"
+hatop_download_url: "https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/hatop/{{ hatop_dir_name }}.tar.gz"
